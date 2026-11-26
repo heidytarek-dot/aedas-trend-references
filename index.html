@@ -34,6 +34,11 @@
 
   .rc{width:var(--cw);flex:none;display:flex;flex-direction:column;gap:3px}
   .rc.post{width:calc(var(--cw) * 64 / 45)}
+  .rc.wide{width:calc(var(--cw) * 256 / 81)}
+  .th.wide{aspect-ratio:16/9}
+  .frame.ytf{aspect-ratio:16/9}
+  .frame iframe.yt{width:100%;height:100%}
+  .mid .frame.ytf{width:min(calc(min(100vh - 130px, 820px) * 16 / 9), calc(100vw - 560px))}
   .th .hit{cursor:pointer}.th .hit.side{left:44px;right:44px}
   .rm{display:flex;flex-direction:column;gap:1px;cursor:pointer;min-width:0}
   .rm:hover .rt{text-decoration:underline}
@@ -184,6 +189,15 @@
 <script>
 {
 const T=[
+ {id:"t1",c:"team",v0:2,t:"Video",ig:"p/DTu-UVoERDT",d:"Jan 2026",n:"Iftar (cinematic)",s:"",w:"Cinematic event film: slow camera moves, warm low light and close details of the table and the people.",why:"Feels premium and emotional, not salesy. Seasonal moments like Ramadan and Iftar get strong engagement, and the slow cinematic pace makes an office event look special."},
+ {id:"t2",c:"team",v0:2,t:"Post",ig:"p/DYmxh9YRsdR",d:"May 2026",n:"AUD (infographic)",s:"",w:"Information turned into clean graphics: numbers, icons and short text in a clear layout.",why:"Easy to take in at a glance and easy to share. Good for explaining criteria, results or numbers (awards, programmes) without a long caption."},
+ {id:"t3",c:"team",v0:2,t:"Post",ig:"p/DZVu22Bjdnr",d:"Jun 2026",n:"20 years restyle",s:"",w:"An anniversary piece that restyles past work in today's look.",why:"Milestones are a strong story. Mixing old and new shows heritage and growth at once, a model for an Aedas anniversary piece."},
+ {id:"t4",c:"team",v0:2,t:"Video",yt:"EA26cTAYQOo",d:"Apr 2023",n:"20 years: NYT “Gravity”",s:"",w:"The New York Times “More of Life Brought to Life: Gravity” (Droga5, 2023): one story flows into the next through a chain of linked objects.",why:"One idea leading to the next keeps people watching and shows range in one flowing piece. A 20-years film could chain project to project the same way."},
+ {id:"t5",c:"team",v0:2,t:"Video",ig:"p/DXQXS86CQZX",d:"Apr 2026",n:"Postcard video (Rixos)",s:"",w:"A place shown as a series of postcard-style frames that come to life.",why:"Every shot is composed like a postcard, so the place looks its best and the film feels premium. Fits showing a finished building or project."},
+ {id:"t6",c:"team",v0:2,t:"Video",ig:"p/DYFJFM2tSbR",d:"May 2026",n:"2D character video",s:"",w:"A simple illustrated 2D character tells the story.",why:"Friendly and memorable with nobody on camera. A character can explain ideas, guide a series and become a recurring face."},
+ {id:"t7",c:"team",v0:2,t:"Video",ig:"p/DU1MQjbDWA1",d:"Feb 2026",n:"Architecture tour",s:"",w:"A walk-through tour of a building or space.",why:"Lets people feel the space and how it flows, which photos can't do. Core content for an architecture firm."},
+ {id:"t8",c:"team",v0:2,t:"Video",ig:"p/DQKNErzjOZ0",d:"Oct 2025",n:"Upbeat AI video",s:"",w:"Fast, upbeat edit built from AI-generated visuals.",why:"High energy and novelty grab attention fast. Good for announcements or ideas that don't have footage yet."},
+ {id:"t9",c:"team",v0:2,t:"Video",ig:"p/DRheQkjFAmf",d:"Nov 2025",n:"Interview (Bvlgari)",s:"",w:"A premium, well-lit interview with a strong personality, cut with close details.",why:"A real person's voice and personality at the centre, with a luxury feel. A model for interviews with Aedas leaders and designers."},
  {id:"e1",c:"edit",t:"Video",ig:"p/DdoRaagRBl2",d:"Oct 2026",n:"Small text zoom",s:"Drop It Like It's Hot x Staying Alive",w:"Tiny text on screen zooms in to reveal the message.",hook:"Text too small to read yet, so people stop to look.",len:"7–10 s",ax:"A wide studio or building shot with one small line of text placed on it.",sh:["Locked-off shot of the scene, 2–3 s","Small text in one corner (about 10% size)","Punch-in zoom to the text on the beat drop","Hold the full-screen message 2 s"],ed:"Keyframe zoom on the beat. One font, high contrast.",kit:"Phone on tripod"},
  {id:"e2",c:"edit",t:"Video",ig:"p/DcoJKYgsGEp",d:"Oct 2026",n:"Upside down",s:"Upside Down",w:"Lip-sync with a hand gesture that flips from the before to the after.",hook:"Lip-sync starts on the first frame.",len:"8–12 s",ax:"The same spot before and after: empty pin-up wall → full review; site → finished building.",sh:["Before: medium shot to camera, lip-syncing","Hand sweeps across the lens on the key lyric","After: same framing, changed scene"],ed:"Cut on the hand movement. Camera must not move between takes.",kit:"Phone on tripod, floor marks"},
  {id:"e3",c:"edit",t:"Video",ig:"p/DeFnyr-q4Jq",d:"Oct 2026",n:"My reaction",s:"Original audio",w:"Opinions shown only with facial expressions, one prompt at a time.",hook:"First prompt on screen at 0 s.",len:"8–12 s",ax:"Close-ups of team faces reacting to architecture-life prompts.",sh:["Close-up face, neutral start","4–6 text prompts, one per beat","A different expression for each prompt"],ed:"Cut on each beat. Text centred near the top.",kit:"Phone, window light"},
@@ -218,10 +232,12 @@ const T=[
 ];let CATS={};
 const WM={edit:"EDITING · TRANSITIONS",proj:"PROJECTS · PROCESS",people:"PEOPLE · TEAM",vlog:"VLOGS · ROUTINES"};
 const MONS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const plat=t=>t.ig?"Instagram":"TikTok";
+const plat=t=>t.yt?"YouTube":t.ig?"Instagram":"TikTok";
+const BUILTIN_ROWS=[{k:"team",n:"Team references"}];
+const ensureRows=()=>{BUILTIN_ROWS.slice().reverse().forEach(r=>{if(!S.rows.some(x=>x.k===r.k))S.rows.unshift(Object.assign({},r))})};
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const byId=id=>T.find(t=>t.id===id);
-const watchUrl=t=>t.url?t.url:t.ig?"https://www.instagram.com/"+t.ig+"/":"https://www.tiktok.com/@"+t.h+"/video/"+t.tt;
+const watchUrl=t=>t.url?t.url:t.yt?"https://www.youtube.com/watch?v="+t.yt:t.ig?"https://www.instagram.com/"+t.ig+"/":"https://www.tiktok.com/@"+t.h+"/video/"+t.tt;
 const dkey=t=>{const[m,y]=t.d.split(" ");return (+y)*12+MONS.indexOf(m)};
 const UP='<svg viewBox="0 0 24 24"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
 const DOWN='<svg viewBox="0 0 24 24"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
@@ -229,7 +245,7 @@ const COPY='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx
 const KEY="aedasTrendRefsTL.v1";
 let S={v:{},dumped:[],cw:104,rows:[{k:"edit",n:"Editing styles"},{k:"proj",n:"Projects"},{k:"people",n:"People"},{k:"vlog",n:"Vlogs & routines"}],added:[]};try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY))||{})}catch(e){}
 if(S.picks){S.picks.forEach(id=>{if(!S.v[id])S.v[id]=1});delete S.picks}
-(S.added||[]).forEach(t=>{if(!byId(t.id))T.push(t)});
+(S.added||[]).forEach(t=>{if(!byId(t.id))T.push(t)});ensureRows();T.forEach(t=>{if(t.v0&&!(t.id in S.v)&&!S.dumped.includes(t.id))S.v[t.id]=t.v0});
 const syncCats=()=>{CATS={};S.rows.forEach(r=>CATS[r.k]=r.n)};syncCats();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const F={type:"All",plat:"All",q:""};
@@ -241,6 +257,7 @@ const pass=t=>!S.dumped.includes(t.id)&&(F.type==="All"||(F.type==="Videos"?t.t=
 const rowList=c=>T.filter(t=>t.c===c&&pass(t)).sort((a,b)=>dkey(b)-dkey(a));
 
 function media(t){
+  if(t.yt)return '<div class="frame '+(t.ys?"":"ytf")+'"><iframe class="yt" src="https://www.youtube-nocookie.com/embed/'+t.yt+'?rel=0&playsinline=1&enablejsapi=1" loading="lazy" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen title="'+esc(t.n)+'"></iframe></div>';
   return t.ig?'<div class="frame '+(t.t==="Post"?"igf":"igv")+'"><iframe class="ig" src="https://www.instagram.com/'+t.ig+'/embed/" loading="lazy" scrolling="no" allowtransparency="true" title="'+esc(t.n)+'"></iframe></div>'
              :'<div class="frame"><iframe class="tt" src="https://www.tiktok.com/player/v1/'+t.tt+'?description=0&music_info=1&loop=1&rel=0" loading="lazy" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="'+esc(t.n)+'"></iframe></div>';
 }
@@ -262,7 +279,7 @@ addEventListener("message",e=>{let host="";try{host=new URL(e.origin).hostname}c
   let d=e.data;if(typeof d==="string"){try{d=JSON.parse(d)}catch(x){return}}const h=d&&d.details&&d.details.height;if(!(d&&d.type==="MEASURE"&&h>200))return;
   document.querySelectorAll("iframe.ig").forEach(i=>{if(i.contentWindow===e.source){i.dataset.h=Math.round(h);fit(i)}})});
 
-function rc(t){return '<div class="rc '+stat(t)+(t.t==="Post"?" post":"")+'"><div class="th'+(t.t==="Post"?" post":"")+'">'+media(t)+(t.ig?'<span class="hit'+(t.t==="Post"?" side":"")+'" data-open="'+t.id+'"></span>':'')+'<button class="exp" data-open="'+t.id+'" aria-label="Open '+esc(t.n)+'"><svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button></div><div class="rm" data-open="'+t.id+'"><span class="rt">'+esc(t.n)+'</span><span class="rd">'+t.d+' · '+plat(t)+(t.t==="Post"?' · Post':'')+'</span></div></div>'}
+function rc(t){const wide=t.yt&&!t.ys;return '<div class="rc '+stat(t)+(wide?" wide":t.t==="Post"&&!t.yt?" post":"")+'"><div class="th'+(wide?" wide":t.t==="Post"&&!t.yt?" post":"")+'">'+media(t)+(t.ig?'<span class="hit'+(t.t==="Post"?" side":"")+'" data-open="'+t.id+'"></span>':'')+'<button class="exp" data-open="'+t.id+'" aria-label="Open '+esc(t.n)+'"><svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button></div><div class="rm" data-open="'+t.id+'"><span class="rt">'+esc(t.n)+'</span><span class="rd">'+t.d+' · '+plat(t)+(t.t==="Post"?' · Post':'')+'</span></div></div>'}
 function renderBoard(){
   document.getElementById("tl").innerHTML=S.rows.map(r=>{const k=r.k,l=rowList(k);return '<div class="row"><div class="rl" data-focus="'+k+'" title="Open row"><span>'+esc(r.n)+'</span></div><div class="cell" style="border-left:0">'+l.map(rc).join("")+'<button class="addt" data-add="'+k+'" aria-label="Add to '+esc(r.n)+'">+</button></div></div>'}).join("")+
    '<div class="row addrow"><div class="rl"><button class="addrl" data-addrow aria-label="Add a row">+</button></div><div class="cell" style="border-left:0"></div></div>';
@@ -272,7 +289,7 @@ const pills=(k,o)=>o.map(v=>'<button data-f="'+k+'" data-v="'+v+'" class="'+(F[k
 function counts(){let a=0,b=0;Object.entries(S.v).forEach(([id,n])=>{if(S.dumped.includes(id))return;if(n===1)a++;if(n===2)b++});return[a,b]}
 function renderCtl(){
   document.getElementById("pType").innerHTML=pills("type",["All","Videos","Posts"]);
-  document.getElementById("pPlat").innerHTML=pills("plat",["All","Instagram","TikTok"]);
+  document.getElementById("pPlat").innerHTML=pills("plat",["All","Instagram","TikTok","YouTube"]);
   document.getElementById("dumpBtn").textContent="Dump · "+S.dumped.length;
   const[a,b]=counts();
   document.getElementById("bbar").innerHTML='<span class="lg"><i style="background:var(--none)"></i>To review</span><span class="lg"><i style="background:var(--up1)"></i>Liked · '+a+'</span><span class="lg"><i style="background:var(--up2)"></i>Loved · '+b+'</span>'+
@@ -285,7 +302,7 @@ function render(){renderCtl();renderDump();renderBoard();if(fk){if(CATS[fk])open
 
 const playing=new Set();
 addEventListener("blur",()=>setTimeout(()=>{const a=document.activeElement;if(a&&a.tagName==="IFRAME"){playing.forEach(f=>{if(f!==a)stopOne(f)});playing.clear();playing.add(a)}},0));
-function stopOne(f){if(!f.isConnected)return;try{if(f.classList.contains("tt"))f.contentWindow.postMessage({type:"pause","x-tiktok-player":true},"*");else f.src=f.src}catch(e){}}
+function stopOne(f){if(!f.isConnected)return;try{if(f.classList.contains("tt"))f.contentWindow.postMessage({type:"pause","x-tiktok-player":true},"*");else if(f.classList.contains("yt"))f.contentWindow.postMessage(JSON.stringify({event:"command",func:"pauseVideo",args:""}),"*");else f.src=f.src}catch(e){}}
 function stopPlayers(){playing.forEach(stopOne);playing.clear();if(document.activeElement&&document.activeElement.tagName==="IFRAME")document.activeElement.blur()}
 function openRef(id){stopPlayers();
   const t=byId(id),L=rowList(t.c);const i=Math.max(0,L.findIndex(x=>x.id===id));cur=id;const n=vOf(id);
@@ -293,7 +310,7 @@ function openRef(id){stopPlayers();
    '<div class="pph"><span class="crumb">'+esc(CATS[t.c].toUpperCase())+'</span><span class="ppa"><button class="x" data-close aria-label="Close">✕</button></span></div>'+
    '<div class="ppg"><div class="mid"><span class="mt">'+(i+1)+' of '+L.length+'</span><div class="stage"><button class="nav" data-step="-1" aria-label="Previous">‹</button>'+media(t).replace('class="frame','class="frame '+stat(t))+'<button class="nav" data-step="1" aria-label="Next">›</button></div></div>'+
    '<div class="ds"><h2>'+esc(t.n)+'</h2><table class="ft"><tbody>'+
-     '<tr><td>DATE</td><td>'+t.d+'</td></tr><tr><td>PLATFORM</td><td>'+plat(t)+(t.t==="Post"?' · Post':' · Video')+'</td></tr><tr><td>STYLE</td><td>'+esc(CATS[t.c])+'</td></tr><tr><td>SOUND</td><td>'+esc(t.s||"—")+'</td></tr>'+(t.w&&!t.sh?'<tr><td>THE STYLE</td><td>'+esc(t.w)+'</td></tr>':'')+'</tbody></table>'+
+     '<tr><td>DATE</td><td>'+t.d+'</td></tr><tr><td>PLATFORM</td><td>'+plat(t)+(t.t==="Post"?' · Post':' · Video')+'</td></tr><tr><td>STYLE</td><td>'+esc(CATS[t.c])+'</td></tr><tr><td>SOUND</td><td>'+esc(t.s||"—")+'</td></tr>'+(t.w&&!t.sh?'<tr><td>THE STYLE</td><td>'+esc(t.w)+'</td></tr>':'')+(t.why?'<tr><td>WHY IT WORKS</td><td>'+esc(t.why)+'</td></tr>':'')+'</tbody></table>'+
    '<div class="dacts"><button class="tb dark" data-copy="'+id+'">'+COPY+'Copy shot list</button>'+
      '<button class="tb ic'+(n===1?" v1on":"")+'" data-vote="1" aria-label="Like" title="Like">'+UP+'</button>'+
      '<button class="tb ic2'+(n===2?" v2on":"")+'" data-vote="2" aria-label="Love" title="Love">'+UP+UP+'</button>'+
@@ -322,7 +339,7 @@ function vote(n){if(!cur)return;const id=cur;S.v[id]=vOf(id)===n?0:n;if(!S.v[id]
   soft();pushVerdict(id)}
 const MD=document.getElementById("md"),MC=document.getElementById("mc");
 function closeMd(){MD.classList.remove("open");MC.innerHTML=""}
-function parseLink(u){u=(u||"").trim();let m=u.match(/instagram\.com\/(?:[^\/]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);if(m){const k=m[1]==="p"?"p":"reel";return{ig:k+"/"+m[2],url:"https://www.instagram.com/"+k+"/"+m[2]+"/"}}
+function parseLink(u){u=(u||"").trim();let y=u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);if(y)return Object.assign({yt:y[1],url:"https://www.youtube.com/watch?v="+y[1]},/shorts\//.test(u)?{ys:1}:{});let m=u.match(/instagram\.com\/(?:[^\/]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);if(m){const k=m[1]==="p"?"p":"reel";return{ig:k+"/"+m[2],url:"https://www.instagram.com/"+k+"/"+m[2]+"/"}}
   m=u.match(/tiktok\.com\/@([^\/?#]+)\/(?:video|photo)\/(\d+)/);if(m)return{tt:m[2],h:m[1],url:"https://www.tiktok.com/@"+m[1]+"/video/"+m[2]};return null}
 const toMonth=d=>{if(!d)return"";const[m,y]=d.split(" ");const i=MONS.indexOf(m);return i<0?"":y+"-"+String(i+1).padStart(2,"0")};
 const fromMonth=v=>{const[y,m]=(v||"").split("-");return y&&m?MONS[+m-1]+" "+y:""};
@@ -344,7 +361,7 @@ function saveAdd(id){const L=parseLink(document.getElementById("fLink").value),e
   const n=document.getElementById("fName").value.trim();if(!n){err.textContent="Give it a name.";return}
   const d=fromMonth(document.getElementById("fDate").value)||MONS[new Date().getMonth()]+" "+new Date().getFullYear();
   const o=Object.assign({c:document.getElementById("fRow").value,t:document.getElementById("fType").value,d,n,s:document.getElementById("fSound").value.trim(),w:document.getElementById("fStyle").value.trim(),raw:document.getElementById("fShots").value.trim(),custom:1},L);
-  if(id){const t=byId(id);["ig","tt","h"].forEach(x=>delete t[x]);Object.assign(t,o);const a=S.added.find(x=>x.id===id);if(a&&a!==t){["ig","tt","h"].forEach(x=>delete a[x]);Object.assign(a,o)}}
+  if(id){const t=byId(id);["ig","tt","h","yt","ys"].forEach(x=>delete t[x]);Object.assign(t,o);const a=S.added.find(x=>x.id===id);if(a&&a!==t){["ig","tt","h","yt","ys"].forEach(x=>delete a[x]);Object.assign(a,o)}}
   else{o.id="u"+Date.now().toString(36);T.push(o);S.added.push(o)}
   save();closeMd();render();if(id&&cur===id)openRef(id);toast(id?"Saved":"Added “"+n+"”",false);pushRef(byId(id||o.id))}
 function delAdded(id){S.added=S.added.filter(x=>x.id!==id);const i=T.findIndex(x=>x.id===id);if(i>=0)T.splice(i,1);delete S.v[id];S.dumped=S.dumped.filter(x=>x!==id);save();closeMd();if(cur===id)closeRef();render();pushDelRef(id)}
@@ -380,10 +397,10 @@ let lastSig="";
 const sig=()=>JSON.stringify([S.rows,S.added,S.dumped.slice().sort()]);
 async function sync(force){if(!LIVE||(pushing&&!force))return;
   try{const[rows,refs,ver]=await Promise.all([sbGet("rows?select=k,n,ord&order=ord"),sbGet("refs?select=id,data&order=created_at"),sbGet("verdicts?select=id,v,dumped")]);
-    if(rows.length)S.rows=rows.map(r=>({k:r.k,n:r.n}));
+    if(rows.length)S.rows=rows.map(r=>({k:r.k,n:r.n}));ensureRows();
     for(let i=T.length-1;i>=0;i--)if(T[i].custom)T.splice(i,1);
     S.added=refs.map(r=>Object.assign({},r.data,{id:r.id,custom:1}));S.added.forEach(t=>T.push(t));
-    S.v={};S.dumped=[];ver.forEach(x=>{if(x.v)S.v[x.id]=x.v;if(x.dumped)S.dumped.push(x.id)});
+    S.v={};S.dumped=[];ver.forEach(x=>{if(x.v)S.v[x.id]=x.v;if(x.dumped)S.dumped.push(x.id)});T.forEach(t=>{if(t.v0&&!ver.some(x=>x.id===t.id))S.v[t.id]=t.v0});
     syncCats();save();const s=sig();
     if(s!==lastSig){lastSig=s;render()}else{document.querySelectorAll(".rc").forEach(c=>{const m=c.querySelector(".rm");if(!m)return;const n=vOf(m.dataset.open);c.classList.remove("v1","v2");if(n)c.classList.add("v"+n)});renderCtl()}
     if(cur&&byId(cur)&&!S.dumped.includes(cur)){const n=vOf(cur);document.querySelectorAll("#pp [data-vote]").forEach(b=>{const k=+b.dataset.vote;b.classList.toggle(k===1?"v1on":"v2on",n===k)});const f=document.querySelector("#pp .mid .frame");if(f){f.classList.remove("v1","v2");if(n)f.classList.add("v"+n)}}
@@ -395,7 +412,7 @@ function toast(m,undo){document.getElementById("toastMsg").textContent=m;documen
 function hideToast(){document.getElementById("toast").classList.remove("show")}
 function dump(id){const t=byId(id),L=rowList(t.c),i=L.findIndex(x=>x.id===id),nx=L.length>1?L[(i+1)%L.length].id:null;delete S.v[id];S.dumped=[...S.dumped.filter(x=>x!==id),id];lastDump=id;save();const c=cardOf(id);if(c)c.remove();soft();if(nx)openRef(nx);else closeRef();toast("Dumped “"+t.n+"”",true);pushVerdict(id)}
 function restore(id){S.dumped=S.dumped.filter(x=>x!==id);save();render();pushVerdict(id)}
-const askText=t=>"Reelo, write the 8-part shot list for this trend and add it to the catalogue in REELO.md:\n"+t.n+" — "+plat(t)+" · "+t.t+" · "+t.d+" · style group: "+CATS[t.c]+(t.s?"\nSound: "+t.s:"")+(t.w?"\nThe style: "+t.w:"")+"\nLink: "+watchUrl(t);
+const askText=t=>"Reelo, write the 8-part shot list for this trend and add it to the catalogue in REELO.md:\n"+t.n+" — "+plat(t)+" · "+t.t+" · "+t.d+" · style group: "+CATS[t.c]+(t.s?"\nSound: "+t.s:"")+(t.w?"\nThe style: "+t.w:"")+(t.why?"\nWhy it works: "+t.why:"")+"\nLink: "+watchUrl(t);
 const shotText=t=>!t.sh?(t.raw?t.n+" — "+plat(t)+", "+t.d+"\n\n"+t.raw+"\n\nReference: "+watchUrl(t):askText(t)):t.n+" — "+plat(t)+", "+t.d+"\n\n1. The style: "+t.w+"\n2. Hook (first 2 s): "+t.hook+"\n3. Shots:\n"+t.sh.map((x,i)=>"   "+(i+1)+") "+x).join("\n")+"\n4. Edit & text: "+t.ed+"\n5. Sound: "+t.s+"\n6. Length: "+t.len+"\n7. What to capture at Aedas: "+t.ax+"\n8. Kit: "+t.kit+"\n\nReference: "+watchUrl(t);
 function copy(s){const fb=x=>{const a=document.createElement("textarea");a.value=x;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove()};
   try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(s).catch(()=>fb(s));else fb(s)}catch(e){fb(s)}}
