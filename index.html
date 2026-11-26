@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aedas · Trend References</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Same format as the Aedas Marketing Timeline: style rows down the side, months across the top. */
+  :root{--up1:#BBF7D0;--up2:#22C55E;--ink:#111;--mute:#6B6B6B;--line:#EDEDED;--line2:#D4D4D4;--bg:#fff;--hover:#F4F4F4;--top:#FACC15;--pick:#22C55E;--none:#D4D4D4;--cw:104px;--lc:34px}
+  *{box-sizing:border-box;margin:0;padding:0;min-width:0}
+  html,body{height:100%}
+  body{font-family:'Inter Tight',Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;font-size:13px;-webkit-font-smoothing:antialiased;overflow:hidden}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer;background:none;border:0}
+  button:focus-visible,input:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+  a{color:inherit}
+
+  /* timeline */
+  .tl{position:fixed;inset:44px 0 0;overflow:auto;background:#fff;padding-bottom:70px}
+  .hdr{position:sticky;top:0;z-index:12;display:flex;height:30px;background:#111;color:#fff;width:max-content;min-width:100%}
+  .hdr .corner{position:sticky;left:0;z-index:13;width:var(--lc);flex:none;background:#111;display:grid;place-items:center;font-size:12px;font-weight:700}
+  .hdr .m{flex:none;display:flex;align-items:center;padding:0 10px;font-size:12px;font-weight:600;border-left:1px solid #2A2A2A;white-space:nowrap}
+  .hdr .m b{font-weight:800;margin-right:5px}
+  .hdr .m.now{background:#2A2A2A}
+  .row{position:relative;display:flex;width:max-content;min-width:100%;border-bottom:1px solid var(--line)}
+  .rl{position:sticky;left:0;z-index:8;width:var(--lc);flex:none;background:#fff;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .rl span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:12px;font-weight:700;white-space:nowrap}
+  .wm{position:sticky;left:calc(var(--lc) + 14px);width:0;flex:none;z-index:0;pointer-events:none}
+  .wm span{position:absolute;top:22px;left:0;font-size:30px;font-weight:800;letter-spacing:.02em;color:#F1F1F1;white-space:nowrap}
+  .cell{flex:none;display:flex;gap:8px;padding:14px 8px 14px;border-left:1px solid var(--line);position:relative;z-index:1;align-items:flex-start}
+  .cell.now{background:#FAFAFA}
+
+  .rc{width:var(--cw);flex:none;display:flex;flex-direction:column;gap:3px}
+  .rc.post{width:calc(var(--cw) * 64 / 45)}
+  .th .hit{cursor:pointer}.th .hit.side{left:44px;right:44px}
+  .rm{display:flex;flex-direction:column;gap:1px;cursor:pointer;min-width:0}
+  .rm:hover .rt{text-decoration:underline}
+  .exp{position:absolute;z-index:4;top:5px;left:5px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;opacity:0;transition:opacity .15s}
+  .exp svg{width:12px;height:12px;fill:none;stroke:#111;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .rc:hover .exp,.exp:focus-visible{opacity:1}
+  .th{position:relative;width:100%;aspect-ratio:9/16;background:#111;overflow:hidden;border-bottom:3px solid var(--none)}
+  .th.post{aspect-ratio:4/5}
+  .rc.v1 .th{border-bottom-color:var(--up1)}
+  .rc.v2 .th{border-bottom-color:var(--up2)}
+  .th .frame{position:absolute;inset:0;width:100%;height:100%}
+  .th .hit{position:absolute;inset:0;z-index:3}
+  
+  .badge{position:absolute;z-index:4;top:4px;right:4px;font-size:9px;font-weight:700;background:#fff;color:#111;border-radius:999px;padding:1px 6px}
+  .rt{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+  .rd{font-size:10px;color:var(--mute);white-space:nowrap}
+
+  /* media */
+  .frame{position:relative;width:100%;aspect-ratio:9/16;overflow:hidden;background:#111}
+  .frame.igf{aspect-ratio:4/5}
+  .frame iframe{position:absolute;top:0;left:0;border:0}
+  .frame iframe.tt{width:100%;height:100%}
+  .frame iframe.ig{width:326px;height:900px;transform-origin:0 0}
+
+  /* top-right controls (like the timeline) */
+  .ctl{position:fixed;top:0;left:0;right:0;z-index:20;height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#fff;border-bottom:1px solid var(--line);color:#111}
+  .ctl .brand{margin-right:auto;font-size:13px}
+  .brand{font-size:12px;font-weight:600;white-space:nowrap;margin-right:4px}
+  .pills{display:flex;gap:2px;padding:2px;border:1px solid #D4D4D4;border-radius:999px;background:#fff}
+  .pills button{font-size:12px;font-weight:600;height:22px;line-height:22px;padding:0 10px;border-radius:999px;color:#111;white-space:nowrap}
+  .pills button.on{background:#111;color:#fff}
+  .srch{height:24px;width:180px;border-radius:999px;border:1px solid #D4D4D4;background:#fff;color:#111;font-size:11px;padding:0 10px}
+  .srch::placeholder{color:#6B6B6B}
+
+  /* bottom floating bar */
+  .bbar{position:fixed;right:14px;bottom:14px;z-index:20;display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line2);border-radius:999px;padding:4px 6px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 6px}
+  .lg i{width:10px;height:10px;border-radius:2px;display:inline-block}
+  .bb{height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+  .bb:hover{background:var(--hover)}
+  .bb.on{background:#111;color:#fff}
+  .bb.ic{width:26px;padding:0;justify-content:center;font-size:16px}
+  .vsep{width:1px;height:18px;background:var(--line2);margin:0 2px}
+
+  /* list view */
+  .lv{position:fixed;inset:44px 0 0;overflow:auto;background:#fff;display:none;padding:28px 40px 90px}
+  .lv.open{display:block}
+  .lv table{width:100%;border-collapse:collapse}
+  .lv th{position:sticky;top:-28px;background:#fff;text-align:left;font-size:12px;font-weight:600;padding:10px;border-bottom:2px solid #111}
+  .lv td{padding:9px 10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+  .lv tr.r{cursor:pointer}.lv tr.r:hover td{background:var(--hover)}
+  .dot{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:-1px;background:var(--none)}
+
+  /* post-details panel */
+  .pp{position:fixed;inset:0;z-index:40;background:#fff;display:none;flex-direction:column}
+  .pp.open{display:flex}
+  .pph{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px;border-bottom:1px solid var(--line)}
+  .crumb{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.1em;color:#555}
+  .crumb i{width:12px;height:12px;border:2px solid var(--none);display:inline-block}
+  .ppa{display:flex;align-items:center;gap:8px}
+  .tb{border:1px solid var(--line2);background:#fff;border-radius:999px;height:28px;padding:0 12px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none}
+  .tb:hover{background:var(--hover)}
+  .tb.dark,.tb.on{background:#111;color:#fff;border-color:#111}
+  .x{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:16px}
+  .x:hover{background:var(--hover)}
+  .ppg{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 430px}
+  .mid{background:#F4F4F4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;position:relative;min-height:0}
+  .mt{align-self:center;font-size:16px;font-weight:700}
+  .mid .stage{display:flex;align-items:center;gap:24px}
+  .mid .frame{width:calc(min(100vh - 130px,820px) * 9 / 16);flex:none;border:4px solid var(--none)}
+  .mid .frame.igf{width:calc(min(100vh - 130px,820px) * 4 / 5)}
+  .mid .frame.v1{border-color:var(--up1)}.mid .frame.v2{border-color:var(--up2)}
+  .nav{width:34px;height:34px;border-radius:50%;border:1px solid #111;background:#fff;display:grid;place-items:center;font-size:15px;flex:none}
+  .nav:hover{background:var(--hover)}
+  .ds{overflow:auto;padding:22px 22px 60px;border-left:1px solid var(--line)}
+  .ds h2{font-size:22px;font-weight:700;letter-spacing:-.01em;padding-bottom:10px;border-bottom:1px solid #111;margin-bottom:16px}
+  .ft{width:100%;border-collapse:collapse}
+  .ft td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px}
+  .ft td:first-child{width:118px;font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--mute);padding-top:10px}
+  .ft ol{padding-left:18px}
+  .sd{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--none)}
+  .dacts{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 6px}
+  .sec2{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--mute);margin:18px 0 4px}
+  .toast{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:60;background:#111;color:#fff;border-radius:999px;padding:8px 8px 8px 16px;font-size:12px;font-weight:600;display:none;align-items:center;gap:10px}
+  .toast.show{display:flex}.toast button{background:#fff;color:#111;border-radius:999px;height:24px;padding:0 12px;font-size:12px;font-weight:700}
+  .tb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .tb.ic{width:34px;padding:0;justify-content:center}.tb.ic2{width:44px;padding:0;justify-content:center;gap:0}.tb.ic2 svg+svg{margin-left:-6px}
+  .tb.v1on{background:#DCFCE7;border-color:#86EFAC;color:#166534}
+  .tb.v2on{background:var(--up2);border-color:var(--up2);color:#fff}
+  .lg svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .dpop{position:fixed;top:40px;right:14px;z-index:30;width:340px;max-height:60vh;overflow:auto;background:#fff;border:1px solid var(--line2);border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);padding:8px;display:none}
+  .dpop.open{display:block}
+  .dpop .di{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px}
+  .dpop .di:hover{background:var(--hover)}
+  .dpop .di b{flex:1;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dpop .di span{font-size:11px;color:var(--mute);white-space:nowrap}
+  .dpop .di button{height:24px;padding:0 10px;border-radius:999px;border:1px solid var(--line2);font-size:11px;font-weight:600}
+  .dpop .di button:hover{background:#111;color:#fff;border-color:#111}
+  .dpop .empty{padding:10px;font-size:12px;color:var(--mute)}
+  .dbtn{height:24px;padding:0 12px;border-radius:999px;border:1px solid #D4D4D4;font-size:12px;font-weight:600;white-space:nowrap}
+  .dbtn:hover,.dbtn.on{background:#111;color:#fff;border-color:#111}
+  .row{padding-top:0}.row:first-child{border-top:0}
+  .addt{flex:none;width:var(--cw);aspect-ratio:9/16;background:#F4F4F4;display:grid;place-items:center;color:#6B6B6B;font-size:26px;font-weight:300}
+  .addt:hover{background:#111;color:#fff}
+  .rl{cursor:pointer}.rl:hover{background:var(--hover)}
+  .row.addrow .rl{padding:10px 0}.row.addrow .cell{padding:0}
+  .addrl{width:24px;height:24px;border-radius:50%;border:1px solid #111;display:grid;place-items:center;font-size:15px;line-height:1;background:#fff}
+  .addrl:hover{background:#111;color:#fff}
+  .md{position:fixed;inset:0;z-index:70;background:rgba(17,17,17,.35);display:none;align-items:center;justify-content:center;padding:20px}
+  .md.open{display:flex}
+  .mc{background:#fff;width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:14px;padding:22px}
+  .mc h3{font-size:18px;font-weight:700;margin-bottom:14px}
+  .fl{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .fl>span{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--mute)}
+  .fl input,.fl textarea,.fl select{border:1px solid #D4D4D4;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;width:100%}
+  .fl textarea{min-height:110px;resize:vertical;line-height:1.4}
+  .fl input:focus,.fl textarea:focus{outline:1px solid #111;border-color:#111}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .err{color:#B91C1C;font-size:12px;font-weight:600;min-height:16px}
+  .mf{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+  .mf .left{margin-right:auto}
+  .raw{white-space:pre-wrap;font-size:13px;line-height:1.5;padding:8px 0}
+  .fx{position:fixed;inset:44px 0 0;z-index:25;background:#fff;display:none;flex-direction:column;--cw:calc((100vh - 250px) * 9 / 16)}
+  .fx.open{display:flex}
+  .fxh{height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line)}
+  .fxh b{font-size:16px;font-weight:700;margin-right:auto}
+  .fxb{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;display:flex;align-items:center;gap:14px;padding:0 24px 60px}
+  .fxb .rc{gap:5px}.fxb .rt{font-size:13px}.fxb .rd{font-size:11px}
+  .fxb .addt{font-size:40px}
+  @media (max-width:900px){.ppg{grid-template-columns:1fr;overflow:auto}.ds{border-left:0}.mid .frame{width:min(100%,340px)}.srch{width:100px}.brand{display:none}}
+</style>
+</head>
+<body>
+<div class="tl" id="tl"></div>
+<div class="ctl">
+  <span class="brand">Aedas · Trend References</span>
+  <input class="srch" id="q" type="search" placeholder="Search" aria-label="Search references">
+  <div class="pills" id="pType"></div>
+  <div class="pills" id="pPlat"></div>
+  <button class="dbtn" id="dumpBtn"></button>
+</div>
+<div class="dpop" id="dpop" aria-label="Dumped references"></div>
+<div class="bbar" id="bbar"></div>
+<section class="fx" id="fx" aria-label="Row"></section>
+<aside class="pp" id="pp" aria-label="Reference details"></aside>
+<div class="md" id="md" role="dialog" aria-modal="true"><div class="mc" id="mc"></div></div>
+<div class="toast" id="toast"><span id="toastMsg"></span><button id="undo">Undo</button></div>
+<script>
+{
+const T=[
+ {id:"e1",c:"edit",t:"Video",ig:"p/DdoRaagRBl2",d:"Oct 2026",n:"Small text zoom",s:"Drop It Like It's Hot x Staying Alive",w:"Tiny text on screen zooms in to reveal the message.",hook:"Text too small to read yet, so people stop to look.",len:"7–10 s",ax:"A wide studio or building shot with one small line of text placed on it.",sh:["Locked-off shot of the scene, 2–3 s","Small text in one corner (about 10% size)","Punch-in zoom to the text on the beat drop","Hold the full-screen message 2 s"],ed:"Keyframe zoom on the beat. One font, high contrast.",kit:"Phone on tripod"},
+ {id:"e2",c:"edit",t:"Video",ig:"p/DcoJKYgsGEp",d:"Oct 2026",n:"Upside down",s:"Upside Down",w:"Lip-sync with a hand gesture that flips from the before to the after.",hook:"Lip-sync starts on the first frame.",len:"8–12 s",ax:"The same spot before and after: empty pin-up wall → full review; site → finished building.",sh:["Before: medium shot to camera, lip-syncing","Hand sweeps across the lens on the key lyric","After: same framing, changed scene"],ed:"Cut on the hand movement. Camera must not move between takes.",kit:"Phone on tripod, floor marks"},
+ {id:"e3",c:"edit",t:"Video",ig:"p/DeFnyr-q4Jq",d:"Oct 2026",n:"My reaction",s:"Original audio",w:"Opinions shown only with facial expressions, one prompt at a time.",hook:"First prompt on screen at 0 s.",len:"8–12 s",ax:"Close-ups of team faces reacting to architecture-life prompts.",sh:["Close-up face, neutral start","4–6 text prompts, one per beat","A different expression for each prompt"],ed:"Cut on each beat. Text centred near the top.",kit:"Phone, window light"},
+ {id:"e4",c:"edit",t:"Video",ig:"reel/DWuaKdtiR4a",d:"Jun 2026",n:"Stomp to reveal",s:"Original audio",w:"Each stomp peels back the background until the scene has completely changed.",hook:"First stomp within 1 s.",len:"8–10 s",ax:"One person in the same spot across 3–4 Aedas places: studio, model shop, site, finished project.",sh:["Full-body shot, fixed camera","Stomp on each beat (3–4 stomps)","Background changes behind the person after each stomp"],ed:"Hard cut on each stomp, same body position every take.",kit:"Tripod, floor marks"},
+ {id:"e5",c:"edit",t:"Video",ig:"p/DY1e0sbS0On",d:"Jun 2026",n:"Lens wipe transition",s:"James and Antler",w:"A hand wipes the lens and the scene switches from before to after.",hook:"The wipe happens in the first 2 s.",len:"6–8 s",ax:"Before/after pairs from one angle: drawing → render → built.",sh:["Before shot","Hand or cloth wipes across the lens","After shot, same angle"],ed:"Cut on the frame where the lens is fully covered.",kit:"Phone on tripod"},
+ {id:"e6",c:"edit",t:"Video",ig:"p/DbKzFeKInvb",d:"Jul 2026",n:"Black-and-white to colour",s:"Mambo No. 5 – Lou Bega",w:"A black-and-white scene bursts into full colour on the beat.",hook:"A grey opening that feels flat on purpose.",len:"6–10 s",ax:"A building or interior that looks great in colour: materials, sunset light.",sh:["One scene, filmed once","Same clip used for both halves"],ed:"Desaturate the first half, snap to full colour on the beat.",kit:"Phone"},
+ {id:"e7",c:"edit",t:"Video",ig:"reel/DYwSBiroW57",d:"Jul 2026",n:"Flicker",s:"Original audio – venusarosa",w:"Rapid flicker between two clips for a dreamy effect.",hook:"Flicker starts at 0 s.",len:"4–7 s",ax:"Two clips of the same view: day/night, sketch/render, empty/full.",sh:["Two clips from the same angle, different moment or light"],ed:"Alternate every 2–4 frames for 2–3 s, then settle on one clip.",kit:"Phone on tripod"},
+ {id:"e8",c:"edit",t:"Video",ig:"reel/DZAfd4DO8im",d:"Jul 2026",n:"Tap to reveal",s:"Original audio – heytea.usa",w:"A blurred image turns sharp when a finger taps the screen.",hook:"Blurred image with a finger about to tap.",len:"5–8 s",ax:"A hero image of a new project or announcement.",sh:["One hero image or clip","A finger tap, filmed or as a graphic"],ed:"Heavy blur, then sharp on the tap. Hold the reveal 2 s.",kit:"Phone"},
+ {id:"e10",c:"edit",t:"Video",ig:"reel/DcjONHUu1QM",d:"Sep 2026",n:"Rapid-fire recap",s:"Milkshake – Kelis",w:"Very fast cuts of a day, trip or season, like a visual diary.",hook:"Fast cuts from the first frame.",len:"10–15 s",ax:"30+ tiny clips from one office day or event.",sh:["30–40 short clips (under half a second each) from one day"],ed:"Cut on every beat. Keep colour consistent.",kit:"Phone"},
+ {id:"e11",c:"edit",t:"Video",ig:"p/Dcv9gO1MOxh",d:"Sep 2026",n:"AI cinematic scene",s:"Original audio",w:"A cinematic AI-made scene built around one real object.",hook:"A real object that suddenly turns cinematic.",len:"6–10 s",ax:"A clean photo of a model, material sample or building to animate.",sh:["A clean photo of one real object as the start frame"],ed:"Generate a short cinematic clip from it. Slow push-in, film-look grade.",kit:"AI video tool"},
+ {id:"p1",c:"proj",t:"Video",ig:"p/Daf-49doiVG",d:"Jul 2026",n:"Sketch to reality",s:"Colette – Piero Piccioni",w:"Things are sketched onto the video, then turn into the real thing.",hook:"A line drawing appears over real footage.",len:"8–12 s",ax:"A tripod shot of a finished space plus the matching hand sketch.",sh:["Real final scene, filmed on tripod","Same frame with a hand-drawn line sketch on top"],ed:"Animate the sketch drawing itself, then dissolve to the real footage.",kit:"Tripod, tablet to sketch over a still"},
+ {id:"p2",c:"proj",t:"Video",ig:"reel/Dc1PVCTR6Za",d:"Sep 2026",n:"The process",s:"Original audio",w:"Each step of making something, ending on the finished result.",hook:"Flash the finished result for 1 s, then go back to step 1.",len:"15–25 s",ax:"Each design step: sketch, model, render, site, completion.",sh:["5–8 steps, 1–2 s each","Same angle or overhead for every step","Final hero shot, held longer"],ed:"Cut on the beat, speed up slow steps.",kit:"Tripod, overhead mount"},
+ {id:"p3",c:"proj",t:"Video",tt:"7686722119962578206",h:"thomas_boyer79",d:"Sep 2026",n:"Everything I made this year",s:"@thomas_boyer79 · 1.1M views",w:"A one-by-one list of everything made by hand over a year.",hook:"“1 of N” on screen from the start.",len:"15–30 s",ax:"Every physical model or project milestone from the year.",sh:["One clean shot per piece, same background","Number on screen for each"],ed:"1–2 s per piece, numbered countdown.",kit:"Tripod, plain backdrop"},
+ {id:"p4",c:"proj",t:"Video",tt:"7702883318370487583",h:"architecturetimmy",d:"Oct 2026",n:"“Your boss told you to build…”",s:"@architecturetimmy · 3.3M views",w:"An impossible brief as the hook, then the clever building explained in 3D.",hook:"The impossible brief in one sentence.",len:"20–30 s",ax:"A tricky-site project with 3D model views.",sh:["Hook line over the site","3D animation of the solution","Photo of the built result"],ed:"Keep it under 30 s. Captions all the way through.",kit:"3D model, screen recording"},
+ {id:"p5",c:"proj",t:"Video",tt:"7692242225249422622",h:"overlandingrobin5",d:"Oct 2026",n:"Story-tease hook",s:"@overlandingrobin5 · 5.1M views",w:"Opens on a one-line story, then slowly reveals the place.",hook:"One-line story over a wide shot.",len:"15–25 s",ax:"A project with a story: first sketch, the challenge, the reveal.",sh:["Wide shot with the hook line","Slow walk through the details","Final wide reveal"],ed:"Hook text for the first 2 s. Slow, steady cuts.",kit:"Gimbal"},
+ {id:"p7",c:"proj",t:"Video",tt:"7593781056222924054",h:"space.2o",d:"Jan 2026",n:"Spatial transformation",s:"@space.2o · 126K views",w:"One space turns into something completely different.",hook:"The plain “before” space.",len:"8–15 s",ax:"A space set up for an event or exhibition, or construction stages from one angle.",sh:["Locked-off wide of the space as it is","Same angle after the change"],ed:"Time-lapse or a hard cut between the two states.",kit:"Tripod"},
+ {id:"h1",c:"people",t:"Video",ig:"p/DckEW9NNVsJ",d:"Sep 2026",n:"Some people call me…",s:"Summer Love – Justin Timberlake",w:"Lists your nicknames, then flips into what you actually do.",hook:"First nickname at 0 s.",len:"8–12 s",ax:"One team member walking through the studio.",sh:["Talking-head or walking shot","A nickname on screen per beat","Final reveal of the real role"],ed:"Text changes on each beat.",kit:"Phone"},
+ {id:"h2",c:"people",t:"Video",ig:"p/DdMbjQGovMU",d:"Sep 2026",n:"“Where are you?” “Home.”",s:"Original audio",w:"Fake text chat, then shows where you really spend your time.",hook:"Chat bubble: “Where are you?”",len:"5–8 s",ax:"A place the team lives in during deadlines: model shop, pin-up wall.",sh:["Screen recording of the chat","Cut to the real place"],ed:"Chat for 2–3 s, hard cut to the place.",kit:"Phone"},
+ {id:"h3",c:"people",t:"Video",ig:"reel/DaapRt4I67d",d:"Jul 2026",n:"Netflix documentary",s:"Netflix Documentary – natalie_rantingma",w:"Ordinary work moments filmed like a dramatic documentary.",hook:"Dramatic music over a very ordinary moment.",len:"15–30 s",ax:"A seated “interview” and slow B-roll of everyday office details.",sh:["Seated interview shot, looking off camera","Slow B-roll of everyday details"],ed:"Dramatic music, slow zooms, name lower-third.",kit:"Tripod, side light"},
+ {id:"h4",c:"people",t:"Video",ig:"p/DYuudgavFOE",d:"Jun 2026",n:"Same pose, own item",s:"Original audio – nabatiii_",w:"A group strikes the same pose, each holding something that represents them.",hook:"First person already in the pose.",len:"6–12 s",ax:"Each team member with their signature tool: scale ruler, pen, model.",sh:["One person per shot, same pose and framing","Each holds their own item"],ed:"Quick cuts between people on the beat.",kit:"Tripod, floor marks"},
+ {id:"h7",c:"people",t:"Video",ig:"reel/DaHEYNHIwQ4",d:"Jul 2026",n:"Tell me more about yourself",s:"Meaningful Love",w:"A quick dump of photos and interests that sums someone up.",hook:"“Tell me more about yourself” text.",len:"8–12 s",ax:"One team member's work and interests, with their OK.",sh:["8–12 photos or clips about one person"],ed:"Fast cuts on the beat, small labels.",kit:"Camera roll"},
+ {id:"h8",c:"people",t:"Video",ig:"reel/Dbim8aAoctB",d:"Aug 2026",n:"Two best friends",s:"Mix – lisahoogendoorn",w:"Two people side by side showing opposite styles.",hook:"Both faces side by side.",len:"8–12 s",ax:"Two colleagues with opposite work habits.",sh:["Two people, same framing","Contrasting habits or items"],ed:"Split screen or alternating cuts.",kit:"Tripod"},
+ {id:"h13",c:"people",t:"Post",ig:"p/DbvxFi6EZQf",d:"Aug 2026",n:"Kinda chic to…",s:"Carousel",w:"Every slide starts with “kinda chic to…”.",hook:"Cover: “Kinda chic to…”",len:"5–8 slides",ax:"Short opinions on design and office life, in brand colours.",sh:["Plain coloured slides","One line per slide"],ed:"Big type, one colour per slide.",kit:"Canva"},
+ {id:"h14",c:"people",t:"Post",ig:"p/DZDzeSoxr5v",d:"Jun 2026",n:"Plan A, B, C",s:"Carousel",w:"Slides show the dream path, the chaotic one and the one that works too.",hook:"Cover with three options.",len:"3–4 slides",ax:"Three paths, such as career routes or design options.",sh:["One slide per plan, photo plus label"],ed:"Label A, B, C big on each slide.",kit:"Canva, photos"},
+ {id:"h15",c:"people",t:"Post",ig:"p/DU06uhnkbUb",d:"Feb 2026",n:"Photo booth strips",s:"Carousel",w:"Photo booth strips used for throwbacks, team recaps or a brand's evolution.",hook:"A classic four-frame strip as slide 1.",len:"4–6 slides",ax:"Team photo booth strips from an office event or the film-camera day.",sh:["Slide 1: one full strip","Slides 2–5: strips of different people or years"],ed:"Same strip layout and border on every slide.",kit:"Photo booth app or template, Canva"},
+ {id:"v11",c:"vlog",t:"Post",ig:"p/DV_G3U1jD41",d:"Apr 2026",n:"Maybe in another life",s:"Carousel",w:"A swipeable carousel that breaks a day or routine into slides.",hook:"Slide 1 sets up the “another life” idea.",len:"6–10 slides",ax:"One person's day at Aedas, one moment per slide.",sh:["Cover slide with the hook","One moment of the day per slide"],ed:"Short caption on each slide, same position.",kit:"Phone, Canva"},
+ {id:"v1",c:"vlog",t:"Video",ig:"reel/DfqnB8nAUve",d:"Nov 2026",n:"“I feel like I haven't done much this year”",s:"Coming Up Roses – Harry Styles",w:"Year recap: opens on the line, then one clip per month.",hook:"The line on screen at 0 s.",len:"15–20 s",ax:"One clip from each month of 2026 at Aedas ME.",sh:["Opening clip with the line on screen","12 clips, one per month, month name on each"],ed:"Cut on the beat, month name at the top.",kit:"Camera roll"},
+ {id:"v2",c:"vlog",t:"Video",ig:"p/DeCvU2tRRRm",d:"Oct 2026",n:"Vlog timestamps",s:"Pump It – The Black Eyed Peas",w:"A whole day in short clips, each with the time. No talking.",hook:"First time stamp at 0 s.",len:"15–25 s",ax:"One full office or site day.",sh:["8–12 clips across one day","Time stamp on each clip"],ed:"One clip per beat, same time-stamp style.",kit:"Phone"},
+ {id:"v5",c:"vlog",t:"Video",ig:"reel/DZSFl2vAn5w",d:"Jul 2026",n:"Interactive calendar",s:"Original audio – ugc_bysabi",w:"Calendar entries pop up on screen and turn into the clips of the day.",hook:"Calendar on screen, first entry pops.",len:"10–20 s",ax:"A real week's calendar (no client names) plus clips.",sh:["Screen recording of a calendar","A clip for each entry"],ed:"Entry pops, then cuts to its clip.",kit:"Phone, calendar app"},
+ {id:"v9",c:"vlog",t:"Video",tt:"7400105348620733738",h:"nicolehawkins",d:"Aug 2024",n:"Studio-life montage",s:"@nicolehawkins · 2.6M views",w:"A soft, aesthetic montage of studio work and daily life.",hook:"A beautiful slow detail shot.",len:"10–20 s",ax:"Soft studio details in daylight: sketches, models, desks.",sh:["Slow details: desk, sketches, models, light"],ed:"Soft cuts, warm grade.",kit:"Phone"},
+ {id:"v10",c:"vlog",t:"Video",tt:"7503609246035102998",h:"zoe_victoria_m",d:"May 2025",n:"Day in the life of a designer",s:"@zoe_victoria_m · 1.2M views",w:"A design professional's day, start to finish.",hook:"Morning shot with “Day in the life of…”",len:"20–45 s",ax:"One team member's full day.",sh:["Morning start","Desk work","Meetings or site","End of day"],ed:"Short captions, light voiceover optional.",kit:"Phone"}
+];let CATS={};
+const WM={edit:"EDITING · TRANSITIONS",proj:"PROJECTS · PROCESS",people:"PEOPLE · TEAM",vlog:"VLOGS · ROUTINES"};
+const MONS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const plat=t=>t.ig?"Instagram":"TikTok";
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const byId=id=>T.find(t=>t.id===id);
+const watchUrl=t=>t.url?t.url:t.ig?"https://www.instagram.com/"+t.ig+"/":"https://www.tiktok.com/@"+t.h+"/video/"+t.tt;
+const dkey=t=>{const[m,y]=t.d.split(" ");return (+y)*12+MONS.indexOf(m)};
+const UP='<svg viewBox="0 0 24 24"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
+const DOWN='<svg viewBox="0 0 24 24"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
+const COPY='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const KEY="aedasTrendRefsTL.v1";
+let S={v:{},dumped:[],cw:104,rows:[{k:"edit",n:"Editing styles"},{k:"proj",n:"Projects"},{k:"people",n:"People"},{k:"vlog",n:"Vlogs & routines"}],added:[]};try{S=Object.assign(S,JSON.parse(localStorage.getItem(KEY))||{})}catch(e){}
+if(S.picks){S.picks.forEach(id=>{if(!S.v[id])S.v[id]=1});delete S.picks}
+(S.added||[]).forEach(t=>{if(!byId(t.id))T.push(t)});
+const syncCats=()=>{CATS={};S.rows.forEach(r=>CATS[r.k]=r.n)};syncCats();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const F={type:"All",plat:"All",q:""};
+let cur=null;
+const vOf=id=>S.v[id]||0;
+const stat=t=>vOf(t.id)?"v"+vOf(t.id):"";
+const vName=n=>n===2?"Loved":n===1?"Liked":"To review";
+const pass=t=>!S.dumped.includes(t.id)&&(F.type==="All"||(F.type==="Videos"?t.t==="Video":t.t==="Post"))&&(F.plat==="All"||plat(t)===F.plat)&&(!F.q||(t.n+" "+t.w+" "+t.s+" "+CATS[t.c]).toLowerCase().includes(F.q));
+const rowList=c=>T.filter(t=>t.c===c&&pass(t)).sort((a,b)=>dkey(b)-dkey(a));
+
+function media(t){
+  return t.ig?'<div class="frame '+(t.t==="Post"?"igf":"igv")+'"><iframe class="ig" src="https://www.instagram.com/'+t.ig+'/embed/" loading="lazy" scrolling="no" allowtransparency="true" title="'+esc(t.n)+'"></iframe></div>'
+             :'<div class="frame"><iframe class="tt" src="https://www.tiktok.com/player/v1/'+t.tt+'?description=0&music_info=1&loop=1&rel=0" loading="lazy" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="'+esc(t.n)+'"></iframe></div>';
+}
+/* Instagram reels sit inside a wider box with black side bars: crop to the real 9:16 video. */
+/* The embed is header (60) + media + footer (~170). Use Instagram's reported height to find the media box, then show only the media. */
+const IGW=326,IGHEAD=60,IGFOOT=170;
+const mediaH=ifr=>{const h=+ifr.dataset.h;const post=ifr.parentElement.classList.contains("igf");if(!h)return post?408:398;return Math.max(160,Math.min(720,h-IGHEAD-IGFOOT))};
+function fit(ifr){const f=ifr.parentElement,h=+ifr.dataset.h||900,mh=mediaH(ifr);ifr.style.height=h+"px";
+  if(f.classList.contains("igf")){const ar=IGW/mh;f.style.aspectRatio=IGW+" / "+mh;
+    const th=f.closest(".th");if(th)th.style.aspectRatio=IGW+" / "+mh;
+    const rc=f.closest(".rc");if(rc)rc.style.width="calc(var(--cw) * 16 / 9 * "+ar.toFixed(4)+")";
+    if(f.closest(".mid"))f.style.width="calc(min(100vh - 130px, 820px) * "+ar.toFixed(4)+")";
+    const W=f.clientWidth,s=W/IGW;ifr.style.transform="translate(0,"+(-IGHEAD*s)+"px) scale("+s+")";return}
+  const W=f.clientWidth,H=f.clientHeight,vw=mh<260?IGW:Math.min(IGW,mh*9/16);
+  const s=Math.max(W/vw,H/mh);ifr.style.transform="translate("+((W-IGW*s)/2)+"px,"+((H-mh*s)/2-IGHEAD*s)+"px) scale("+s+")"}
+const ro=new ResizeObserver(es=>es.forEach(e=>{const i=e.target.querySelector("iframe.ig");if(i)fit(i)}));
+function fitAll(){document.querySelectorAll(".frame").forEach(f=>{ro.observe(f);const i=f.querySelector("iframe.ig");if(i)fit(i)})}
+addEventListener("message",e=>{let host="";try{host=new URL(e.origin).hostname}catch(x){}if(!/(^|\.)instagram\.com$/.test(host))return;
+  let d=e.data;if(typeof d==="string"){try{d=JSON.parse(d)}catch(x){return}}const h=d&&d.details&&d.details.height;if(!(d&&d.type==="MEASURE"&&h>200))return;
+  document.querySelectorAll("iframe.ig").forEach(i=>{if(i.contentWindow===e.source){i.dataset.h=Math.round(h);fit(i)}})});
+
+function rc(t){return '<div class="rc '+stat(t)+(t.t==="Post"?" post":"")+'"><div class="th'+(t.t==="Post"?" post":"")+'">'+media(t)+(t.ig?'<span class="hit'+(t.t==="Post"?" side":"")+'" data-open="'+t.id+'"></span>':'')+'<button class="exp" data-open="'+t.id+'" aria-label="Open '+esc(t.n)+'"><svg viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button></div><div class="rm" data-open="'+t.id+'"><span class="rt">'+esc(t.n)+'</span><span class="rd">'+t.d+' · '+plat(t)+(t.t==="Post"?' · Post':'')+'</span></div></div>'}
+function renderBoard(){
+  document.getElementById("tl").innerHTML=S.rows.map(r=>{const k=r.k,l=rowList(k);return '<div class="row"><div class="rl" data-focus="'+k+'" title="Open row"><span>'+esc(r.n)+'</span></div><div class="cell" style="border-left:0">'+l.map(rc).join("")+'<button class="addt" data-add="'+k+'" aria-label="Add to '+esc(r.n)+'">+</button></div></div>'}).join("")+
+   '<div class="row addrow"><div class="rl"><button class="addrl" data-addrow aria-label="Add a row">+</button></div><div class="cell" style="border-left:0"></div></div>';
+  fitAll();
+}
+const pills=(k,o)=>o.map(v=>'<button data-f="'+k+'" data-v="'+v+'" class="'+(F[k]===v?"on":"")+'">'+v+'</button>').join("");
+function counts(){let a=0,b=0;Object.entries(S.v).forEach(([id,n])=>{if(S.dumped.includes(id))return;if(n===1)a++;if(n===2)b++});return[a,b]}
+function renderCtl(){
+  document.getElementById("pType").innerHTML=pills("type",["All","Videos","Posts"]);
+  document.getElementById("pPlat").innerHTML=pills("plat",["All","Instagram","TikTok"]);
+  document.getElementById("dumpBtn").textContent="Dump · "+S.dumped.length;
+  const[a,b]=counts();
+  document.getElementById("bbar").innerHTML='<span class="lg"><i style="background:var(--none)"></i>To review</span><span class="lg"><i style="background:var(--up1)"></i>Liked · '+a+'</span><span class="lg"><i style="background:var(--up2)"></i>Loved · '+b+'</span>'+
+   (a||b||S.dumped.length||S.added.length?'<button class="bb" id="copyFb">Copy for Reelo</button>':'')+'<span class="vsep"></span><button class="bb ic" data-zoom="-1" aria-label="Smaller">−</button><button class="bb ic" data-zoom="1" aria-label="Bigger">+</button>';
+}
+function renderDump(){
+  document.getElementById("dpop").innerHTML=S.dumped.length?S.dumped.map(byId).filter(Boolean).map(t=>'<div class="di"><b>'+esc(t.n)+'</b><span>'+esc(CATS[t.c])+'</span><button data-restore="'+t.id+'">Recover</button></div>').join(""):'<div class="empty">Nothing dumped</div>';
+}
+function render(){renderCtl();renderDump();renderBoard();if(fk){if(CATS[fk])openFocus(fk);else closeFocus()}}
+
+const playing=new Set();
+addEventListener("blur",()=>setTimeout(()=>{const a=document.activeElement;if(a&&a.tagName==="IFRAME"){playing.forEach(f=>{if(f!==a)stopOne(f)});playing.clear();playing.add(a)}},0));
+function stopOne(f){if(!f.isConnected)return;try{if(f.classList.contains("tt"))f.contentWindow.postMessage({type:"pause","x-tiktok-player":true},"*");else f.src=f.src}catch(e){}}
+function stopPlayers(){playing.forEach(stopOne);playing.clear();if(document.activeElement&&document.activeElement.tagName==="IFRAME")document.activeElement.blur()}
+function openRef(id){stopPlayers();
+  const t=byId(id),L=rowList(t.c);const i=Math.max(0,L.findIndex(x=>x.id===id));cur=id;const n=vOf(id);
+  document.getElementById("pp").innerHTML=
+   '<div class="pph"><span class="crumb">'+esc(CATS[t.c].toUpperCase())+'</span><span class="ppa"><button class="x" data-close aria-label="Close">✕</button></span></div>'+
+   '<div class="ppg"><div class="mid"><span class="mt">'+(i+1)+' of '+L.length+'</span><div class="stage"><button class="nav" data-step="-1" aria-label="Previous">‹</button>'+media(t).replace('class="frame','class="frame '+stat(t))+'<button class="nav" data-step="1" aria-label="Next">›</button></div></div>'+
+   '<div class="ds"><h2>'+esc(t.n)+'</h2><table class="ft"><tbody>'+
+     '<tr><td>DATE</td><td>'+t.d+'</td></tr><tr><td>PLATFORM</td><td>'+plat(t)+(t.t==="Post"?' · Post':' · Video')+'</td></tr><tr><td>STYLE</td><td>'+esc(CATS[t.c])+'</td></tr><tr><td>SOUND</td><td>'+esc(t.s||"—")+'</td></tr>'+(t.w&&!t.sh?'<tr><td>THE STYLE</td><td>'+esc(t.w)+'</td></tr>':'')+'</tbody></table>'+
+   '<div class="dacts"><button class="tb dark" data-copy="'+id+'">'+COPY+'Copy shot list</button>'+
+     '<button class="tb ic'+(n===1?" v1on":"")+'" data-vote="1" aria-label="Like" title="Like">'+UP+'</button>'+
+     '<button class="tb ic2'+(n===2?" v2on":"")+'" data-vote="2" aria-label="Love" title="Love">'+UP+UP+'</button>'+
+     '<button class="tb ic" data-dump="'+id+'" aria-label="Dump" title="Dump">'+DOWN+'</button>'+
+     '<a class="tb" href="'+watchUrl(t)+'" target="_blank" rel="noopener">Watch ↗</a>'+(t.custom?'<button class="tb" data-edit="'+id+'">Edit</button>':'')+'</div>'+
+   (t.sh?'<div class="sec2">SHOT LIST</div><table class="ft"><tbody>'+
+     [["THE STYLE",esc(t.w)],["HOOK",esc(t.hook)],["SHOTS","<ol>"+t.sh.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ol>"],["EDIT & TEXT",esc(t.ed)],["LENGTH",esc(t.len)],["CAPTURE AT AEDAS",esc(t.ax)],["KIT",esc(t.kit)]]
+       .map(([k,v])=>'<tr><td>'+k+'</td><td>'+v+'</td></tr>').join("")+'</tbody></table>'
+     :'<div class="sec2">SHOT LIST</div>'+(t.raw?'<div class="raw">'+esc(t.raw)+'</div>':'<div class="mf" style="justify-content:flex-start"><button class="tb" data-ask="'+id+'">Copy prompt for Reelo</button></div>'))+'</div></div>';
+  document.getElementById("pp").classList.add("open");fitAll();
+}
+let fk=null;
+function openFocus(k){fk=k;stopPlayers();const fx=document.getElementById("fx"),l=rowList(k);
+  fx.innerHTML='<div class="fxh"><b>'+esc(CATS[k])+'</b><button class="tb" data-row="'+k+'">Edit row</button><button class="x" data-unfocus aria-label="Close row">✕</button></div><div class="fxb">'+l.map(rc).join("")+'<button class="addt" data-add="'+k+'" aria-label="Add to '+esc(CATS[k])+'">+</button></div>';
+  fx.classList.add("open");fitAll()}
+function closeFocus(){fk=null;const fx=document.getElementById("fx");fx.classList.remove("open");fx.innerHTML=""}
+function closeRef(){stopPlayers();cur=null;const p=document.getElementById("pp");p.classList.remove("open");p.innerHTML=""}
+function step(d){if(!cur)return;const L=rowList(byId(cur).c);if(!L.length)return;const i=L.findIndex(x=>x.id===cur);openRef(L[((i<0?0:i)+d+L.length)%L.length].id)}
+const cardsOf=id=>[...document.querySelectorAll('.rm[data-open="'+id+'"]')].filter(m=>!m.closest("#pp")).map(m=>m.closest(".rc"));
+const cardOf=id=>({classList:{remove:(...a)=>cardsOf(id).forEach(c=>c.classList.remove(...a)),add:(...a)=>cardsOf(id).forEach(c=>c.classList.add(...a))},remove:()=>cardsOf(id).forEach(c=>c.remove())});
+function soft(){renderCtl();renderDump()}
+function vote(n){if(!cur)return;const id=cur;S.v[id]=vOf(id)===n?0:n;if(!S.v[id])delete S.v[id];save();
+  const c=cardOf(id);if(c){c.classList.remove("v1","v2");if(vOf(id))c.classList.add("v"+vOf(id))}
+  const f=document.querySelector("#pp .mid .frame");if(f){f.classList.remove("v1","v2");if(vOf(id))f.classList.add("v"+vOf(id))}
+  document.querySelectorAll("#pp [data-vote]").forEach(b=>{const k=+b.dataset.vote;b.classList.toggle(k===1?"v1on":"v2on",vOf(id)===k)});
+  soft();pushVerdict(id)}
+const MD=document.getElementById("md"),MC=document.getElementById("mc");
+function closeMd(){MD.classList.remove("open");MC.innerHTML=""}
+function parseLink(u){u=(u||"").trim();let m=u.match(/instagram\.com\/(?:[^\/]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);if(m){const k=m[1]==="p"?"p":"reel";return{ig:k+"/"+m[2],url:"https://www.instagram.com/"+k+"/"+m[2]+"/"}}
+  m=u.match(/tiktok\.com\/@([^\/?#]+)\/(?:video|photo)\/(\d+)/);if(m)return{tt:m[2],h:m[1],url:"https://www.tiktok.com/@"+m[1]+"/video/"+m[2]};return null}
+const toMonth=d=>{if(!d)return"";const[m,y]=d.split(" ");const i=MONS.indexOf(m);return i<0?"":y+"-"+String(i+1).padStart(2,"0")};
+const fromMonth=v=>{const[y,m]=(v||"").split("-");return y&&m?MONS[+m-1]+" "+y:""};
+function openAdd(k,id){const t=id?byId(id):null;const now=new Date();
+  MC.innerHTML='<h3>'+(t?"Edit reference":"Add to "+esc(CATS[k]))+'</h3>'+
+   '<label class="fl"><span>LINK</span><input id="fLink" placeholder="Instagram or TikTok link" value="'+(t?esc(t.url||watchUrl(t)):"")+'"></label>'+
+   '<label class="fl"><span>NAME</span><input id="fName" value="'+(t?esc(t.n):"")+'"></label>'+
+   '<div class="two"><label class="fl"><span>DATE</span><input id="fDate" type="month" value="'+(t?toMonth(t.d):now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"))+'"></label>'+
+   '<label class="fl"><span>TYPE</span><select id="fType"><option'+(t&&t.t==="Post"?"":" selected")+'>Video</option><option'+(t&&t.t==="Post"?" selected":"")+'>Post</option></select></label></div>'+
+   '<label class="fl"><span>ROW</span><select id="fRow">'+S.rows.map(r=>'<option value="'+r.k+'"'+((t?t.c:k)===r.k?" selected":"")+'>'+esc(r.n)+'</option>').join("")+'</select></label>'+
+   '<label class="fl"><span>SOUND</span><input id="fSound" value="'+(t?esc(t.s||""):"")+'"></label>'+
+   '<label class="fl"><span>THE STYLE</span><input id="fStyle" value="'+(t?esc(t.w||""):"")+'"></label>'+
+   '<label class="fl"><span>SHOT LIST</span><textarea id="fShots">'+(t?esc(t.raw||""):"")+'</textarea></label>'+
+   '<div class="err" id="fErr"></div>'+
+   '<div class="mf">'+(t?'<button class="tb left" data-del="'+t.id+'">Delete</button>':'')+'<button class="tb" data-mdclose>Cancel</button><button class="tb dark" data-saveadd="'+(t?t.id:"")+'">Save</button></div>';
+  MD.classList.add("open");setTimeout(()=>document.getElementById(t?"fName":"fLink").focus(),0)}
+function saveAdd(id){const L=parseLink(document.getElementById("fLink").value),err=document.getElementById("fErr");
+  if(!L){err.textContent="Paste a full Instagram post/reel or TikTok video link.";return}
+  const n=document.getElementById("fName").value.trim();if(!n){err.textContent="Give it a name.";return}
+  const d=fromMonth(document.getElementById("fDate").value)||MONS[new Date().getMonth()]+" "+new Date().getFullYear();
+  const o=Object.assign({c:document.getElementById("fRow").value,t:document.getElementById("fType").value,d,n,s:document.getElementById("fSound").value.trim(),w:document.getElementById("fStyle").value.trim(),raw:document.getElementById("fShots").value.trim(),custom:1},L);
+  if(id){const t=byId(id);["ig","tt","h"].forEach(x=>delete t[x]);Object.assign(t,o);const a=S.added.find(x=>x.id===id);if(a&&a!==t){["ig","tt","h"].forEach(x=>delete a[x]);Object.assign(a,o)}}
+  else{o.id="u"+Date.now().toString(36);T.push(o);S.added.push(o)}
+  save();closeMd();render();if(id&&cur===id)openRef(id);toast(id?"Saved":"Added “"+n+"”",false);pushRef(byId(id||o.id))}
+function delAdded(id){S.added=S.added.filter(x=>x.id!==id);const i=T.findIndex(x=>x.id===id);if(i>=0)T.splice(i,1);delete S.v[id];S.dumped=S.dumped.filter(x=>x!==id);save();closeMd();if(cur===id)closeRef();render();pushDelRef(id)}
+function openRow(k){const r=k?S.rows.find(x=>x.k===k):null;const used=k&&T.some(t=>t.c===k);
+  MC.innerHTML='<h3>'+(r?"Edit row":"New row")+'</h3><label class="fl"><span>NAME</span><input id="rName" value="'+(r?esc(r.n):"")+'"></label><div class="err" id="rErr"></div>'+
+   '<div class="mf">'+(r&&!used?'<button class="tb left" data-rowdel="'+k+'">Delete row</button>':'')+'<button class="tb" data-mdclose>Cancel</button><button class="tb dark" data-rowsave="'+(k||"")+'">Save</button></div>';
+  MD.classList.add("open");setTimeout(()=>document.getElementById("rName").focus(),0)}
+function saveRow(k){const n=document.getElementById("rName").value.trim();if(!n){document.getElementById("rErr").textContent="Give the row a name.";return}
+  if(k){S.rows.find(x=>x.k===k).n=n}else S.rows.push({k:"r"+Date.now().toString(36),n});syncCats();save();closeMd();render();pushRows()}
+
+/* ---------- Shared online data (Supabase). Empty settings = this browser only. ---------- */
+const SB={url:"https://nyxqymsubxhvcmpmqksb.supabase.co",key:"sb_publishable_J-JCvWHuZUpc1faG06n72w_5lFz_Gv4"};
+const LIVE=!!(SB.url&&SB.key),PK="aedasTrendRefs.pass";
+function sbHeaders(){const h={"apikey":SB.key,"Content-Type":"application/json"};if(!/^sb_publishable_/.test(SB.key))h.Authorization="Bearer "+SB.key;return h}
+async function sbGet(path){const r=await fetch(SB.url.replace(/\/$/,"")+"/rest/v1/"+path,{headers:sbHeaders(),cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json()}
+async function sbRpc(fn,args){return fetch(SB.url.replace(/\/$/,"")+"/rest/v1/rpc/"+fn,{method:"POST",headers:sbHeaders(),body:JSON.stringify(args)})}
+let passWait=null;
+function askPass(){return new Promise(res=>{passWait=res;
+  MC.innerHTML='<h3>Team passcode</h3><label class="fl"><span>PASSCODE</span><input id="pPass" type="password" autocomplete="off"></label><div class="err" id="pErr"></div><div class="mf"><button class="tb" data-passno>Cancel</button><button class="tb dark" data-passok>Save</button></div>';
+  MD.classList.add("open");setTimeout(()=>document.getElementById("pPass").focus(),0)})}
+function passDone(v){const r=passWait;passWait=null;closeMd();if(r)r(v)}
+async function getPass(){let p="";try{p=localStorage.getItem(PK)||""}catch(e){}if(p)return p;p=await askPass();if(p){try{localStorage.setItem(PK,p)}catch(e){}}return p}
+let pushing=0;
+async function push(fn,args){if(!LIVE)return;pushing++;try{const p=await getPass();if(!p){await sync(true);return}
+  const r=await sbRpc(fn,Object.assign({p_pass:p},args));
+  if(!r.ok){const t=await r.text();if(/passcode/i.test(t)){try{localStorage.removeItem(PK)}catch(e){}toast("Wrong passcode",false)}else toast("Couldn't save. Check your connection.",false);await sync(true)}}
+  catch(e){toast("Couldn't save. Check your connection.",false);await sync(true)}finally{pushing--}}
+const pushVerdict=id=>push("save_verdict",{p_id:id,p_v:vOf(id),p_dumped:S.dumped.includes(id)});
+const pushRef=t=>{const d=Object.assign({},t);return push("save_ref",{p_id:t.id,p_data:d})};
+const pushDelRef=id=>push("delete_ref",{p_id:id});
+const pushRows=()=>push("save_rows",{p_rows:S.rows.map((r,i)=>({k:r.k,n:r.n,ord:i}))});
+let lastSig="";
+const sig=()=>JSON.stringify([S.rows,S.added,S.dumped.slice().sort()]);
+async function sync(force){if(!LIVE||(pushing&&!force))return;
+  try{const[rows,refs,ver]=await Promise.all([sbGet("rows?select=k,n,ord&order=ord"),sbGet("refs?select=id,data&order=created_at"),sbGet("verdicts?select=id,v,dumped")]);
+    if(rows.length)S.rows=rows.map(r=>({k:r.k,n:r.n}));
+    for(let i=T.length-1;i>=0;i--)if(T[i].custom)T.splice(i,1);
+    S.added=refs.map(r=>Object.assign({},r.data,{id:r.id,custom:1}));S.added.forEach(t=>T.push(t));
+    S.v={};S.dumped=[];ver.forEach(x=>{if(x.v)S.v[x.id]=x.v;if(x.dumped)S.dumped.push(x.id)});
+    syncCats();save();const s=sig();
+    if(s!==lastSig){lastSig=s;render()}else{document.querySelectorAll(".rc").forEach(c=>{const m=c.querySelector(".rm");if(!m)return;const n=vOf(m.dataset.open);c.classList.remove("v1","v2");if(n)c.classList.add("v"+n)});renderCtl()}
+    if(cur&&byId(cur)&&!S.dumped.includes(cur)){const n=vOf(cur);document.querySelectorAll("#pp [data-vote]").forEach(b=>{const k=+b.dataset.vote;b.classList.toggle(k===1?"v1on":"v2on",n===k)});const f=document.querySelector("#pp .mid .frame");if(f){f.classList.remove("v1","v2");if(n)f.classList.add("v"+n)}}
+  }catch(e){}}
+if(LIVE){setInterval(()=>{if(!document.hidden&&!MD.classList.contains("open"))sync()},20000);addEventListener("focus",()=>sync())}
+
+let lastDump=null,tt=0;
+function toast(m,undo){document.getElementById("toastMsg").textContent=m;document.getElementById("undo").style.display=undo?"":"none";document.getElementById("toast").classList.add("show");clearTimeout(tt);tt=setTimeout(hideToast,5000)}
+function hideToast(){document.getElementById("toast").classList.remove("show")}
+function dump(id){const t=byId(id),L=rowList(t.c),i=L.findIndex(x=>x.id===id),nx=L.length>1?L[(i+1)%L.length].id:null;delete S.v[id];S.dumped=[...S.dumped.filter(x=>x!==id),id];lastDump=id;save();const c=cardOf(id);if(c)c.remove();soft();if(nx)openRef(nx);else closeRef();toast("Dumped “"+t.n+"”",true);pushVerdict(id)}
+function restore(id){S.dumped=S.dumped.filter(x=>x!==id);save();render();pushVerdict(id)}
+const askText=t=>"Reelo, write the 8-part shot list for this trend and add it to the catalogue in REELO.md:\n"+t.n+" — "+plat(t)+" · "+t.t+" · "+t.d+" · style group: "+CATS[t.c]+(t.s?"\nSound: "+t.s:"")+(t.w?"\nThe style: "+t.w:"")+"\nLink: "+watchUrl(t);
+const shotText=t=>!t.sh?(t.raw?t.n+" — "+plat(t)+", "+t.d+"\n\n"+t.raw+"\n\nReference: "+watchUrl(t):askText(t)):t.n+" — "+plat(t)+", "+t.d+"\n\n1. The style: "+t.w+"\n2. Hook (first 2 s): "+t.hook+"\n3. Shots:\n"+t.sh.map((x,i)=>"   "+(i+1)+") "+x).join("\n")+"\n4. Edit & text: "+t.ed+"\n5. Sound: "+t.s+"\n6. Length: "+t.len+"\n7. What to capture at Aedas: "+t.ax+"\n8. Kit: "+t.kit+"\n\nReference: "+watchUrl(t);
+function copy(s){const fb=x=>{const a=document.createElement("textarea");a.value=x;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove()};
+  try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(s).catch(()=>fb(s));else fb(s)}catch(e){fb(s)}}
+function feedback(){const ln=t=>"- "+t.n+" ("+CATS[t.c]+", "+plat(t)+", "+t.d+") "+watchUrl(t);const of=n=>Object.keys(S.v).filter(id=>S.v[id]===n&&!S.dumped.includes(id)).map(byId).filter(Boolean).map(ln).join("\n")||"- none";
+  return "Reelo, feedback from the Trend References board:\n\nLoved (find more like these):\n"+of(2)+"\n\nLiked:\n"+of(1)+"\n\nDumped (don't suggest similar):\n"+(S.dumped.map(byId).filter(Boolean).map(ln).join("\n")||"- none")+"\n\nAdded by the team (add to the catalogue; write shot lists where missing):\n"+(S.added.filter(t=>!S.dumped.includes(t.id)).map(ln).join("\n")||"- none")+"\n\nStyle rows on the board: "+S.rows.map(r=>r.n).join(" · ")+"\n\nAdd all of this to your memory."}
+
+document.addEventListener("click",e=>{
+  if(e.target.closest("a"))return;
+  const pop=document.getElementById("dpop");
+  if(e.target.closest("#dumpBtn")){pop.classList.toggle("open");document.getElementById("dumpBtn").classList.toggle("on",pop.classList.contains("open"));return}
+  const rs=e.target.closest("[data-restore]");if(rs){restore(rs.dataset.restore);return}
+  if(!e.target.closest("#dpop")&&pop.classList.contains("open")){pop.classList.remove("open");document.getElementById("dumpBtn").classList.remove("on")}
+  const vt=e.target.closest("[data-vote]");if(vt){vote(+vt.dataset.vote);return}
+  const dp=e.target.closest("[data-dump]");if(dp){dump(dp.dataset.dump);return}
+  if(e.target.closest("#undo")){if(lastDump){restore(lastDump);if(!cur)openRef(lastDump);else openRef(lastDump);lastDump=null}hideToast();return}
+  if(e.target.closest("#copyFb")){copy(feedback());toast("Copied for Reelo",false);return}
+  const f=e.target.closest("[data-f]");if(f){F[f.dataset.f]=f.dataset.v;render();return}
+  if(e.target.closest("[data-passok]")){passDone(document.getElementById("pPass").value.trim());return}
+  if(e.target.closest("[data-passno]")||(passWait&&e.target===MD)){passDone("");return}
+  if(e.target===MD||e.target.closest("[data-mdclose]")){closeMd();return}
+  const sa=e.target.closest("[data-saveadd]");if(sa){saveAdd(sa.dataset.saveadd);return}
+  const de=e.target.closest("[data-del]");if(de){delAdded(de.dataset.del);return}
+  const rsv=e.target.closest("[data-rowsave]");if(rsv){saveRow(rsv.dataset.rowsave);return}
+  const rdl=e.target.closest("[data-rowdel]");if(rdl){S.rows=S.rows.filter(x=>x.k!==rdl.dataset.rowdel);syncCats();save();closeMd();render();pushRows();return}
+  if(e.target.closest("#md"))return;
+  const ad=e.target.closest("[data-add]");if(ad){openAdd(ad.dataset.add);return}
+  const ed=e.target.closest("[data-edit]");if(ed){openAdd(null,ed.dataset.edit);return}
+  const ak=e.target.closest("[data-ask]");if(ak){copy(askText(byId(ak.dataset.ask)));toast("Prompt copied",false);return}
+  if(e.target.closest("[data-addrow]")){openRow(null);return}
+  const fo=e.target.closest("[data-focus]");if(fo){openFocus(fo.dataset.focus);return}
+  if(e.target.closest("[data-unfocus]")){closeFocus();return}
+  const rw=e.target.closest("[data-row]");if(rw){openRow(rw.dataset.row);return}
+  const zm=e.target.closest("[data-zoom]");if(zm){S.cw=Math.max(80,Math.min(200,S.cw+(+zm.dataset.zoom)*24));document.documentElement.style.setProperty("--cw",S.cw+"px");save();renderBoard();return}
+  const st=e.target.closest("[data-step]");if(st){step(+st.dataset.step);return}
+  if(e.target.closest("[data-close]")){closeRef();return}
+  const cp=e.target.closest("[data-copy]");if(cp){copy(shotText(byId(cp.dataset.copy)));toast("Shot list copied",false);return}
+  const op=e.target.closest("[data-open]");if(op){openRef(op.dataset.open)}
+});
+document.addEventListener("keydown",e=>{if(MD.classList.contains("open")){if(e.key==="Escape"){if(passWait)passDone("");else closeMd()}if(e.key==="Enter"&&e.target.tagName==="INPUT"){const b=MC.querySelector("[data-saveadd],[data-rowsave],[data-passok]");if(b)b.click()}return}if(e.key==="Escape"){const pop=document.getElementById("dpop");if(pop.classList.contains("open")){pop.classList.remove("open");document.getElementById("dumpBtn").classList.remove("on");return}if(cur){closeRef();return}if(fk){closeFocus();return}return}if(!cur)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
+document.getElementById("q").addEventListener("input",e=>{F.q=e.target.value.trim().toLowerCase();render()});
+document.documentElement.style.setProperty("--cw",S.cw+"px");
+render();lastSig=sig();sync(true);
+}
+</script>
+</body>
+</html>
